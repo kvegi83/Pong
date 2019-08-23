@@ -1,0 +1,75 @@
+from tkinter import *
+import random
+import time
+
+t=Tk()
+t.title("pong")
+c=Canvas(t,height=300,width=300)
+c.pack()
+t.update()
+class Ball:
+    def __init__(self,c,p,color):
+        self.c=c
+        self.p=p
+        self.id=c.create_oval(10,10,25,25,fill=color)
+        self.c.move(self.id,150,150)
+        start=[-3,-2,-1,0,1,2,3]
+        random.shuffle(start)
+        self.y=-1
+        self.x=start[0]
+        self.canvas_height=self.c.winfo_height()
+        self.canvas_width=self.c.winfo_width()
+        self.hit_ball=False
+    def hit_paddle(self,pos):
+        paddle_pos=self.c.coords(self.p.id)
+        if(pos[2]>=paddle_pos[0] and pos[0]<=paddle_pos[2]):
+            if(pos[3]>=paddle_pos[1] and pos[3]<=paddle_pos[3]):
+               return True
+            return False
+               
+    def draw(self):
+        self.c.move(self.id,self.x,self.y)
+        pos=self.c.coords(self.id)
+        if(pos[1]==0):
+            self.y=1
+        if(pos[3]==self.canvas_height):
+            self.hit_ball=True
+            c.create_text(130,100,text="game over")
+        if(pos[0]==0):
+            self.x=1
+        if(pos[2]==self.canvas_width):
+            self.x=-1
+        if(self.hit_paddle(pos)==True):
+            self.y=-1
+class Paddle:
+    def __init__(self,c,color):
+        self.c=c
+        self.id=c.create_rectangle(0,0,100,10,fill=color)
+        self.c.move(self.id,150,150)
+        self.x=0
+        self.canvas_width=self.c.winfo_width()
+        self.c.bind_all("<KeyPress-Left>",self.turn_left)
+        self.c.bind_all("<KeyPress-Right>",self.turn_right)
+    def draw(self):
+        self.c.move(self.id,self.x,0)
+        pos=self.c.coords(self.id)
+        if(pos[0]==0):
+            self.x=2
+        if(pos[2]==self.canvas_width):
+            self.x=-2
+        
+    def turn_left(self,evt):
+        self.x=-2
+    def turn_right(self,evt):
+        self.x=2
+        
+
+p=Paddle(c,"red")
+b=Ball(c,p,"green")
+while 1:
+    if b.hit_ball==False:
+        b.draw()
+        p.draw()
+    t.update_idletasks()
+    t.update()
+    time.sleep(0.01)
